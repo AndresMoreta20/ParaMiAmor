@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💖 Cuenta Regresiva 💖</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --rosa-claro: #ffd6e8;
+    --rosa: #ff9ec7;
+    --rosa-fuerte: #ff5fa2;
+    --rosa-oscuro: #d6336c;
+    --blanco: #fff8fb;
+  }
+
+  html, body { height: 100%; overflow: hidden; }
+
+  body {
+    font-family: 'Segoe UI', 'Comic Sans MS', cursive, sans-serif;
+    background: linear-gradient(135deg, #ffc2dd 0%, #ffd6e8 35%, #ffe3f0 60%, #ffc8e0 100%);
+    background-size: 300% 300%;
+    animation: fondoMovido 12s ease infinite;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  @keyframes fondoMovido {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* ===== Elementos flotantes de fondo ===== */
+  .flotante {
+    position: absolute;
+    bottom: -80px;
+    font-size: 2rem;
+    animation: subir linear infinite;
+    opacity: 0.8;
+    pointer-events: none;
+    z-index: 1;
+    filter: drop-shadow(0 2px 4px rgba(214, 51, 108, 0.2));
+  }
+
+  @keyframes subir {
+    0%   { transform: translateY(0) rotate(0deg) translateX(0); opacity: 0; }
+    10%  { opacity: 0.85; }
+    50%  { transform: translateY(-55vh) rotate(15deg) translateX(30px); }
+    90%  { opacity: 0.85; }
+    100% { transform: translateY(-115vh) rotate(-15deg) translateX(-30px); opacity: 0; }
+  }
+
+  /* ===== Tarjeta principal ===== */
+  .tarjeta {
+    position: relative;
+    z-index: 10;
+    background: rgba(255, 248, 251, 0.85);
+    backdrop-filter: blur(12px);
+    border-radius: 36px;
+    padding: 48px 56px;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(214, 51, 108, 0.3), 0 0 0 6px rgba(255, 158, 199, 0.35);
+    max-width: 92vw;
+    animation: aparecer 1.2s ease both;
+  }
+
+  @keyframes aparecer {
+    from { opacity: 0; transform: translateY(40px) scale(0.9); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .titulo {
+    font-size: clamp(1.4rem, 4.5vw, 2.4rem);
+    color: var(--rosa-oscuro);
+    margin-bottom: 8px;
+    text-shadow: 2px 2px 0 #ffd6e8;
+  }
+
+  .subtitulo {
+    color: var(--rosa-fuerte);
+    font-size: clamp(0.9rem, 2.5vw, 1.15rem);
+    margin-bottom: 28px;
+  }
+
+  /* ===== Vaquita animada ===== */
+  .vaquita {
+    font-size: clamp(3.5rem, 9vw, 5.5rem);
+    display: inline-block;
+    animation: rebotar 2s ease-in-out infinite;
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.2s;
+  }
+  .vaquita:active { transform: scale(1.3); }
+
+  @keyframes rebotar {
+    0%, 100% { transform: translateY(0) rotate(-4deg); }
+    50%      { transform: translateY(-14px) rotate(4deg); }
+  }
+
+  .mascotas {
+    font-size: clamp(1.6rem, 5vw, 2.4rem);
+    margin-top: 6px;
+    display: flex;
+    justify-content: center;
+    gap: 18px;
+  }
+  .mascotas span {
+    display: inline-block;
+    animation: bailar 1.8s ease-in-out infinite;
+    cursor: pointer;
+    user-select: none;
+  }
+  .mascotas span:nth-child(2) { animation-delay: 0.3s; }
+  .mascotas span:nth-child(3) { animation-delay: 0.6s; }
+
+  @keyframes bailar {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    25%      { transform: translateY(-8px) rotate(-8deg); }
+    75%      { transform: translateY(-8px) rotate(8deg); }
+  }
+
+  /* ===== Reloj ===== */
+  .reloj {
+    display: flex;
+    justify-content: center;
+    gap: clamp(8px, 2.5vw, 20px);
+    margin: 30px 0 14px;
+  }
+
+  .bloque {
+    background: linear-gradient(160deg, var(--rosa) 0%, var(--rosa-fuerte) 100%);
+    border-radius: 22px;
+    padding: clamp(12px, 3vw, 22px) clamp(14px, 3.5vw, 26px);
+    min-width: clamp(70px, 18vw, 110px);
+    box-shadow: 0 8px 20px rgba(255, 95, 162, 0.45), inset 0 2px 6px rgba(255,255,255,0.4);
+    transition: transform 0.3s;
+  }
+  .bloque:hover { transform: translateY(-6px) scale(1.05); }
+
+  .numero {
+    font-size: clamp(2.2rem, 8vw, 3.6rem);
+    font-weight: 800;
+    color: white;
+    text-shadow: 0 3px 6px rgba(214, 51, 108, 0.5);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.1;
+  }
+  .numero.tic { animation: tic 0.5s ease; }
+
+  @keyframes tic {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.18) rotate(2deg); }
+    100% { transform: scale(1); }
+  }
+
+  .etiqueta {
+    font-size: clamp(0.65rem, 2vw, 0.85rem);
+    color: var(--blanco);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-top: 4px;
+    font-weight: 600;
+  }
+
+  .frase {
+    color: var(--rosa-oscuro);
+    font-size: clamp(0.85rem, 2.5vw, 1.05rem);
+    margin-top: 18px;
+    font-style: italic;
+    min-height: 1.5em;
+    transition: opacity 0.5s;
+  }
+
+  /* ===== Pantalla de cumpleaños ===== */
+  .cumple {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    background: linear-gradient(135deg, #ff9ec7 0%, #ffd6e8 40%, #ffb3d4 70%, #ff8ab8 100%);
+    background-size: 300% 300%;
+    animation: fondoMovido 8s ease infinite;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    overflow: hidden;
+  }
+  .cumple.activo { display: flex; }
+
+  .cumple-contenido {
+    position: relative;
+    z-index: 60;
+    padding: 30px;
+    animation: aparecer 1.5s ease both;
+    max-width: 95vw;
+  }
+
+  .cumple h1 {
+    font-size: clamp(2rem, 8vw, 4.5rem);
+    color: white;
+    text-shadow: 3px 3px 0 var(--rosa-fuerte), 6px 6px 20px rgba(214,51,108,0.6);
+    animation: latido 1.5s ease-in-out infinite;
+    margin-bottom: 18px;
+  }
+
+  @keyframes latido {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.06); }
+  }
+
+  .cumple .mensaje {
+    font-size: clamp(1rem, 3.2vw, 1.5rem);
+    color: var(--rosa-oscuro);
+    background: rgba(255, 248, 251, 0.85);
+    border-radius: 26px;
+    padding: 24px 32px;
+    margin: 18px auto;
+    max-width: 640px;
+    box-shadow: 0 12px 36px rgba(214,51,108,0.35);
+    line-height: 1.7;
+  }
+
+  .cumple .animales-fiesta {
+    font-size: clamp(2.5rem, 8vw, 4rem);
+    margin-top: 14px;
+    display: flex;
+    justify-content: center;
+    gap: 22px;
+  }
+  .cumple .animales-fiesta span {
+    display: inline-block;
+    animation: fiesta 1s ease-in-out infinite;
+  }
+  .cumple .animales-fiesta span:nth-child(1) { animation-delay: 0s; }
+  .cumple .animales-fiesta span:nth-child(2) { animation-delay: 0.15s; }
+  .cumple .animales-fiesta span:nth-child(3) { animation-delay: 0.3s; }
+  .cumple .animales-fiesta span:nth-child(4) { animation-delay: 0.45s; }
+
+  @keyframes fiesta {
+    0%, 100% { transform: translateY(0) rotate(-10deg) scale(1); }
+    50%      { transform: translateY(-22px) rotate(10deg) scale(1.15); }
+  }
+
+  /* ===== Confeti ===== */
+  .confeti {
+    position: fixed;
+    top: -20px;
+    z-index: 55;
+    pointer-events: none;
+    animation: caer linear forwards;
+  }
+
+  @keyframes caer {
+    to { transform: translateY(110vh) rotate(720deg); opacity: 0.3; }
+  }
+
+  /* Botón de prueba discreto */
+  .probar {
+    position: fixed;
+    bottom: 10px;
+    right: 12px;
+    z-index: 20;
+    background: transparent;
+    border: none;
+    color: rgba(214, 51, 108, 0.35);
+    font-size: 0.75rem;
+    cursor: pointer;
+    font-family: inherit;
+  }
+</style>
+</head>
+<body>
+
+  <!-- Pantalla de cuenta regresiva -->
+  <div class="tarjeta" id="pantallaConteo">
+    <div class="vaquita" id="vaquita">🐮</div>
+    <h1 class="titulo">Falta poquito para tu día especial...</h1>
+    <p class="subtitulo">Cuando el reloj marque las 12, algo mágico va a pasar ✨</p>
+
+    <div class="reloj">
+      <div class="bloque"><div class="numero" id="horas">00</div><div class="etiqueta">Horas</div></div>
+      <div class="bloque"><div class="numero" id="minutos">00</div><div class="etiqueta">Minutos</div></div>
+      <div class="bloque"><div class="numero" id="segundos">00</div><div class="etiqueta">Segundos</div></div>
+    </div>
+
+    <div class="mascotas">
+      <span title="Husky">🐺</span>
+      <span title="Gatito gris">🐱</span>
+      <span title="Shih tzu">🐶</span>
+    </div>
+
+    <p class="frase" id="frase">Tus bebés peludos también están esperando... 🐾</p>
+  </div>
+
+  <!-- Pantalla de cumpleaños -->
+  <div class="cumple" id="pantallaCumple">
+    <div class="cumple-contenido">
+      <div class="animales-fiesta">
+        <span>🐮</span><span>🐺</span><span>🐱</span><span>🐶</span>
+      </div>
+      <h1>🎂 ¡FELIZ CUMPLEAÑOS MI AMOR! 🎀</h1>
+      <div class="mensaje">
+        Hoy es el día de la persona más linda del mundo entero 💖<br><br>
+        Tu vaquita favorita 🐮, tu husky, tu gatito gris y tu shih tzu
+        se unieron para decirte que eres lo más bonito que existe.<br><br>
+        Que este año te traiga toda la felicidad que mereces.
+        Te amo muchísimo 💕🎉
+      </div>
+      <div class="animales-fiesta">
+        <span>🎀</span><span>🌸</span><span>💝</span><span>🧁</span>
+      </div>
+    </div>
+  </div>
+
+  <button class="probar" id="botonProbar">probar 🎂</button>
+
+<script>
+  // ===== Elementos flotantes de fondo =====
+  const emojisFondo = ['🐮', '💖', '🎀', '🌸', '💕', '🐄', '✨', '🩷', '🧁'];
+  for (let i = 0; i < 16; i++) {
+    const el = document.createElement('div');
+    el.className = 'flotante';
+    el.textContent = emojisFondo[i % emojisFondo.length];
+    el.style.left = Math.random() * 100 + 'vw';
+    el.style.fontSize = (1.2 + Math.random() * 1.8) + 'rem';
+    el.style.animationDuration = (8 + Math.random() * 10) + 's';
+    el.style.animationDelay = (Math.random() * 10) + 's';
+    document.body.appendChild(el);
+  }
+
+  // ===== Frases rotativas =====
+  const frases = [
+    'Tus bebés peludos también están esperando... 🐾',
+    'La vaquita está practicando su baile de cumpleaños 🐮💃',
+    'El husky ya está aullando de emoción 🐺🎶',
+    'El gatito gris ronronea contando los segundos 🐱💤',
+    'El shih tzu mueve la colita sin parar 🐶✨',
+    'Algo muy bonito se acerca... 💖',
+  ];
+  let fraseIdx = 0;
+  const fraseEl = document.getElementById('frase');
+  setInterval(() => {
+    fraseEl.style.opacity = 0;
+    setTimeout(() => {
+      fraseIdx = (fraseIdx + 1) % frases.length;
+      fraseEl.textContent = frases[fraseIdx];
+      fraseEl.style.opacity = 1;
+    }, 500);
+  }, 5000);
+
+  // ===== Cuenta regresiva hasta la medianoche (hora del computador) =====
+  const horasEl = document.getElementById('horas');
+  const minutosEl = document.getElementById('minutos');
+  const segundosEl = document.getElementById('segundos');
+  let celebrando = false;
+
+  function actualizarNumero(el, valor) {
+    const texto = String(valor).padStart(2, '0');
+    if (el.textContent !== texto) {
+      el.textContent = texto;
+      el.classList.remove('tic');
+      void el.offsetWidth; // reinicia la animación
+      el.classList.add('tic');
+    }
+  }
+
+  function tic() {
+    if (celebrando) return;
+    const ahora = new Date();
+    const medianoche = new Date(ahora);
+    medianoche.setHours(24, 0, 0, 0); // próxima medianoche
+
+    const diff = medianoche - ahora;
+
+    if (diff <= 1000) {
+      celebrar();
+      return;
+    }
+
+    const totalSeg = Math.floor(diff / 1000);
+    actualizarNumero(horasEl, Math.floor(totalSeg / 3600));
+    actualizarNumero(minutosEl, Math.floor((totalSeg % 3600) / 60));
+    actualizarNumero(segundosEl, totalSeg % 60);
+  }
+
+  tic();
+  setInterval(tic, 250);
+
+  // ===== Celebración =====
+  function celebrar() {
+    if (celebrando) return;
+    celebrando = true;
+    document.getElementById('pantallaConteo').style.display = 'none';
+    document.getElementById('botonProbar').style.display = 'none';
+    document.getElementById('pantallaCumple').classList.add('activo');
+    lanzarConfeti();
+    setInterval(lanzarConfeti, 2500);
+  }
+
+  function lanzarConfeti() {
+    const piezas = ['🎀', '💖', '🌸', '✨', '🩷', '💕', '🐮', '🧁', '🎉'];
+    const colores = ['#ff5fa2', '#ffd6e8', '#ff9ec7', '#d6336c', '#fff'];
+    for (let i = 0; i < 40; i++) {
+      const c = document.createElement('div');
+      c.className = 'confeti';
+      if (Math.random() < 0.5) {
+        c.textContent = piezas[Math.floor(Math.random() * piezas.length)];
+        c.style.fontSize = (0.9 + Math.random() * 1.4) + 'rem';
+      } else {
+        c.style.width = c.style.height = (6 + Math.random() * 8) + 'px';
+        c.style.background = colores[Math.floor(Math.random() * colores.length)];
+        c.style.borderRadius = Math.random() < 0.5 ? '50%' : '3px';
+      }
+      c.style.left = Math.random() * 100 + 'vw';
+      c.style.animationDuration = (2.5 + Math.random() * 3) + 's';
+      c.style.animationDelay = (Math.random() * 1.5) + 's';
+      document.body.appendChild(c);
+      setTimeout(() => c.remove(), 7000);
+    }
+  }
+
+  // Botón para previsualizar la celebración (puedes borrarlo si quieres)
+  document.getElementById('botonProbar').addEventListener('click', celebrar);
+
+  // Corazoncitos al tocar la vaquita
+  document.getElementById('vaquita').addEventListener('click', (e) => {
+    for (let i = 0; i < 6; i++) {
+      const h = document.createElement('div');
+      h.className = 'confeti';
+      h.textContent = '💖';
+      h.style.left = (e.clientX / window.innerWidth * 100 + (Math.random() * 10 - 5)) + 'vw';
+      h.style.top = e.clientY + 'px';
+      h.style.fontSize = (0.8 + Math.random()) + 'rem';
+      h.style.animationDuration = (1.5 + Math.random() * 2) + 's';
+      h.style.zIndex = 100;
+      document.body.appendChild(h);
+      setTimeout(() => h.remove(), 4000);
+    }
+  });
+</script>
+</body>
+</html>
