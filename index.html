@@ -114,7 +114,13 @@
     align-items: flex-end;
     gap: clamp(16px, 4vw, 34px);
   }
-  .mascotas img {
+  .mascota {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .mascota img {
     width: clamp(58px, 12vw, 92px);
     display: inline-block;
     animation: bailar 1.9s ease-in-out infinite;
@@ -124,9 +130,25 @@
     filter: drop-shadow(0 8px 14px rgba(214, 51, 108, 0.3));
     transition: transform 0.2s;
   }
-  .mascotas img:hover { transform: scale(1.15); }
-  .mascotas img:nth-child(2) { animation-delay: 0.3s; }
-  .mascotas img:nth-child(3) { animation-delay: 0.6s; }
+  .mascota img:hover { transform: scale(1.15); }
+  .mascota:nth-child(2) img { animation-delay: 0.3s; }
+  .mascota:nth-child(3) img { animation-delay: 0.6s; }
+
+  .mascota span {
+    font-size: clamp(0.8rem, 2.2vw, 1rem);
+    font-weight: 700;
+    color: white;
+    background: linear-gradient(160deg, var(--rosa) 0%, var(--rosa-fuerte) 100%);
+    padding: 3px 14px;
+    border-radius: 999px;
+    box-shadow: 0 4px 10px rgba(255, 95, 162, 0.4);
+    letter-spacing: 1px;
+  }
+
+  /* Husky blanco ❄️ */
+  .husky-blanco {
+    filter: brightness(1.35) saturate(0.4) drop-shadow(0 8px 14px rgba(214, 51, 108, 0.3)) !important;
+  }
 
   @keyframes bailar {
     0%, 100% { transform: translateY(0) rotate(0deg); }
@@ -339,9 +361,9 @@
     </div>
 
     <div class="mascotas">
-      <img src="emoji/husky.png" alt="husky" title="Tu husky">
-      <img src="emoji/gato.png" alt="gatito gris" title="Tu gatito gris">
-      <img src="emoji/perro.png" alt="shih tzu" title="Tu shih tzu">
+      <div class="mascota"><img class="husky-blanco" src="emoji/husky.png" alt="Kira"><span>Kira</span></div>
+      <div class="mascota"><img src="emoji/gato.png" alt="Pecas"><span>Pecas</span></div>
+      <div class="mascota"><img src="emoji/perro.png" alt="Tobby"><span>Tobby</span></div>
     </div>
 
     <p class="frase" id="frase"></p>
@@ -352,9 +374,9 @@
     <div class="cumple-contenido">
       <div class="animales-fiesta">
         <img src="emoji/vaca.png" alt="vaquita">
-        <img src="emoji/husky.png" alt="husky">
-        <img src="emoji/gato.png" alt="gatito">
-        <img src="emoji/perro.png" alt="shih tzu">
+        <img class="husky-blanco" src="emoji/husky.png" alt="Kira">
+        <img src="emoji/gato.png" alt="Pecas">
+        <img src="emoji/perro.png" alt="Tobby">
       </div>
       <img class="pastel-grande" src="emoji/pastel.png" alt="pastel">
       <h1>¡FELIZ CUMPLEAÑOS MI AMOR!</h1>
@@ -414,9 +436,9 @@
   const frases = [
     ['Tus bebés peludos también están esperando...', EMOJI.huellas],
     ['La vaquita está practicando su baile de cumpleaños', EMOJI.vaca],
-    ['El husky ya está aullando de emoción', EMOJI.husky],
-    ['El gatito gris ronronea contando los segundos', EMOJI.gato],
-    ['El shih tzu mueve la colita sin parar', EMOJI.perro],
+    ['Kira ya está aullando de emoción', EMOJI.husky],
+    ['Pecas ronronea contando los segundos', EMOJI.gato],
+    ['Tobby mueve la colita sin parar', EMOJI.perro],
     ['Algo muy bonito se acerca...', EMOJI.corazon2],
   ];
   let fraseIdx = 0;
