@@ -150,6 +150,11 @@
     filter: brightness(1.35) saturate(0.4) drop-shadow(0 8px 14px rgba(214, 51, 108, 0.3)) !important;
   }
 
+  /* Gatito gris 🩶 */
+  .gato-gris {
+    filter: grayscale(1) brightness(1.1) drop-shadow(0 8px 14px rgba(214, 51, 108, 0.3)) !important;
+  }
+
   @keyframes bailar {
     0%, 100% { transform: translateY(0) rotate(0deg); }
     25%      { transform: translateY(-10px) rotate(-8deg); }
@@ -312,7 +317,7 @@
   .musica {
     position: fixed;
     bottom: 16px;
-    right: 16px;
+    left: 16px;
     z-index: 70;
     background: linear-gradient(160deg, var(--rosa) 0%, var(--rosa-fuerte) 100%);
     border: none;
@@ -322,14 +327,14 @@
     font-size: 1.6rem;
     cursor: pointer;
     box-shadow: 0 8px 20px rgba(255, 95, 162, 0.5);
-    display: none;
+    display: flex;
     align-items: center;
     justify-content: center;
     transition: transform 0.2s;
     animation: latido 1.5s ease-in-out infinite;
   }
   .musica:hover { transform: scale(1.12); }
-  .cumple.activo ~ .musica { display: flex; }
+  .musica.apagada { animation: none; opacity: 0.6; }
 
   /* Botón de prueba discreto */
   .probar {
@@ -362,7 +367,7 @@
 
     <div class="mascotas">
       <div class="mascota"><img class="husky-blanco" src="emoji/husky.png" alt="Kira"><span>Kira</span></div>
-      <div class="mascota"><img src="emoji/gato.png" alt="Pecas"><span>Pecas</span></div>
+      <div class="mascota"><img class="gato-gris" src="emoji/gato.png" alt="Pecas"><span>Pecas</span></div>
       <div class="mascota"><img src="emoji/perro.png" alt="Tobby"><span>Tobby</span></div>
     </div>
 
@@ -375,7 +380,7 @@
       <div class="animales-fiesta">
         <img src="emoji/vaca.png" alt="vaquita">
         <img class="husky-blanco" src="emoji/husky.png" alt="Kira">
-        <img src="emoji/gato.png" alt="Pecas">
+        <img class="gato-gris" src="emoji/gato.png" alt="Pecas">
         <img src="emoji/perro.png" alt="Tobby">
       </div>
       <img class="pastel-grande" src="emoji/pastel.png" alt="pastel">
@@ -498,27 +503,36 @@
   let audioCtx = null;
   let cancionSonando = false;
 
+  let esperaGain = null;     // volumen maestro de la música de espera
+  let esperaTimer = null;
+  let esperaSonando = false;
+  let esperaActiva = true;   // preferencia del usuario (botón 🎵)
+
   function prepararAudio() {
     if (!audioCtx) {
       audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      esperaGain = audioCtx.createGain();
+      esperaGain.connect(audioCtx.destination);
     }
     if (audioCtx.state === 'suspended') audioCtx.resume();
+    // Al primer toque arranca la musiquita de espera (los navegadores
+    // no permiten sonido antes de una interacción).
+    if (!celebrando && esperaActiva && !esperaSonando) loopEspera();
   }
-  // Los navegadores solo permiten sonido tras un toque/clic: preparamos el audio
-  // con la primera interacción en la página.
   document.addEventListener('pointerdown', prepararAudio);
   document.addEventListener('keydown', prepararAudio);
 
-  function nota(freq, inicio, dur, vol) {
+  function nota(freq, inicio, dur, vol, salida) {
     // Tono principal (cajita musical)
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
     osc.type = 'triangle';
     osc.frequency.value = freq;
+    const destino = salida || audioCtx.destination;
     gain.gain.setValueAtTime(0, inicio);
     gain.gain.linearRampToValueAtTime(vol, inicio + 0.02);
     gain.gain.exponentialRampToValueAtTime(0.001, inicio + dur);
-    osc.connect(gain).connect(audioCtx.destination);
+    osc.connect(gain).connect(destino);
     osc.start(inicio);
     osc.stop(inicio + dur + 0.05);
     // Brillito una octava arriba
@@ -529,9 +543,78 @@
     gain2.gain.setValueAtTime(0, inicio);
     gain2.gain.linearRampToValueAtTime(vol * 0.25, inicio + 0.02);
     gain2.gain.exponentialRampToValueAtTime(0.001, inicio + dur * 0.7);
-    osc2.connect(gain2).connect(audioCtx.destination);
+    osc2.connect(gain2).connect(destino);
     osc2.start(inicio);
     osc2.stop(inicio + dur + 0.05);
+  }
+
+  // ===== Musiquita de espera (vals de cajita musical, en loop) =====
+  const FRE = { C4: 261.63, D4: 293.66, E4: 329.63, F4: 349.23, G4: 392.00,
+                A4: 440.00, B4: 493.88, C5: 523.25, D5: 587.33, E5: 659.25, G5: 783.99 };
+
+  function loopEspera() {
+    if (celebrando || !esperaActiva || !audioCtx) return;
+    esperaSonando = true;
+    esperaGain.gain.cancelScheduledValues(audioCtx.currentTime);
+    esperaGain.gain.setValueAtTime(1, audioCtx.currentTime);
+
+    // Estilo folk-pop (inspirado en Morat): guitarra arpegiada rápida
+    // sobre la progresión C - G - Am - F, con melodía pegajosa encima.
+    const tiempo = 0.25; // segundos por corchea (~120 bpm)
+
+    // Acordes: [nombre, notas del arpegio (graves)]
+    const acordes = [
+      ['C',  ['C4', 'G4', 'C5', 'E4']],
+      ['G',  ['G4', 'D5', 'G4', 'B4']],
+      ['Am', ['A4', 'E5', 'A4', 'C5']],
+      ['F',  ['F4', 'C5', 'F4', 'A4']],
+    ];
+
+    // Melodía (8 compases, dos vueltas con final distinto): [nota, duración en corcheas]
+    const melodia = [
+      // C                                    G
+      ['E5', 1], ['E5', 1], ['D5', 1], ['C5', 1], ['D5', 2], ['E5', 2],
+      ['D5', 1], ['D5', 1], ['C5', 1], ['B4', 1], ['C5', 2], ['D5', 2],
+      // Am                                   F
+      ['C5', 1], ['C5', 1], ['B4', 1], ['A4', 1], ['B4', 2], ['C5', 2],
+      ['A4', 1], ['B4', 1], ['C5', 1], ['D5', 1], ['B4', 3], [null, 1],
+      // C                                    G
+      ['G4', 1], ['C5', 1], ['E5', 2], ['D5', 1], ['C5', 1], ['D5', 2],
+      ['G4', 1], ['B4', 1], ['D5', 2], ['C5', 1], ['B4', 1], ['C5', 2],
+      // Am                                   F
+      ['E5', 1], ['E5', 1], ['D5', 1], ['C5', 1], ['A4', 2], ['C5', 2],
+      ['D5', 2], ['B4', 2], ['C5', 3], [null, 1],
+    ];
+
+    let t = audioCtx.currentTime + 0.05;
+
+    // Guitarra: arpegio de corcheas, 8 por compás (compás = 8 corcheas)
+    const totalCorcheas = melodia.reduce((s, [, d]) => s + d, 0);
+    const compases = Math.round(totalCorcheas / 8);
+    for (let c = 0; c < compases; c++) {
+      const arp = acordes[c % acordes.length][1];
+      for (let i = 0; i < 8; i++) {
+        const f = FRE[arp[i % arp.length]] / 2; // una octava abajo, como guitarra
+        nota(f, t + (c * 8 + i) * tiempo, tiempo * 1.8, 0.038, esperaGain);
+      }
+    }
+
+    // Melodía encima
+    for (const [n, d] of melodia) {
+      if (n) nota(FRE[n], t, d * tiempo + 0.25, 0.085, esperaGain);
+      t += d * tiempo;
+    }
+    const durMs = (t - audioCtx.currentTime) * 1000;
+    esperaTimer = setTimeout(loopEspera, durMs - 100);
+  }
+
+  function pararEspera() {
+    esperaSonando = false;
+    clearTimeout(esperaTimer);
+    if (esperaGain && audioCtx) {
+      // Silencia de inmediato las notas ya programadas
+      esperaGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.05);
+    }
   }
 
   function tocarCancion() {
@@ -557,7 +640,18 @@
     setTimeout(() => { cancionSonando = false; }, (t - audioCtx.currentTime) * 1000);
   }
 
-  document.getElementById('botonMusica').addEventListener('click', tocarCancion);
+  // Botón 🎵: durante la espera enciende/apaga la musiquita;
+  // en la celebración repite la canción de cumpleaños.
+  const botonMusica = document.getElementById('botonMusica');
+  botonMusica.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (celebrando) { tocarCancion(); return; }
+    esperaActiva = !esperaActiva;
+    botonMusica.textContent = esperaActiva ? '🎵' : '🔇';
+    botonMusica.classList.toggle('apagada', !esperaActiva);
+    if (esperaActiva) { prepararAudio(); loopEspera(); }
+    else pararEspera();
+  });
 
   // ===== Celebración =====
   function celebrar() {
@@ -566,6 +660,9 @@
     document.getElementById('pantallaConteo').style.display = 'none';
     document.getElementById('botonProbar').style.display = 'none';
     document.getElementById('pantallaCumple').classList.add('activo');
+    pararEspera();
+    botonMusica.textContent = '🎵';
+    botonMusica.classList.remove('apagada');
     tocarCancion();
     lanzarConfeti();
     setInterval(lanzarConfeti, 2500);
